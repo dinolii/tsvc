@@ -68,7 +68,7 @@ void s123_sse(struct args_t * func_args)
                 j++;
                 a[j] = c[i+3] + d[i+3] * e[i+3];
             }
-            else if(!((c[i] > (real_t)0.) && !(c[i+1] > (real_t) 0.) && !(c[i+2] > (real_t)0.) && !(c[i+3] > (real_t)0.))){
+            else if(!(c[i] > (real_t)0.) && !(c[i+1] > (real_t) 0.) && !(c[i+2] > (real_t)0.) && !(c[i+3] > (real_t)0.)){
                 __m128 d_ = _mm_load_ps(&d[i]);
                 __m128 e_ = _mm_load_ps(&e[i]);
                 _mm_store_ps(&a[j], _mm_add_ps(_mm_load_ps(&b[i]), _mm_mul_ps(d_, e_)));
@@ -86,13 +86,13 @@ void s123_sse(struct args_t * func_args)
                     a[j] = c[i+1] + d[i+1] * e[i+1];
                 }
                 j++;
-                a[j] = b[i+1] + d[i+1] * e[i+1];
+                a[j] = b[i+2] + d[i+2] * e[i+2];
                 if (c[i+2] > (real_t)0.) {
                     j++;
                     a[j] = c[i+2] + d[i+2] * e[i+2];
                 }
                 j++;
-                a[j] = b[i+2] + d[i+2] * e[i+2];
+                a[j] = b[i+3] + d[i+3] * e[i+3];
                 if (c[i+3] > (real_t)0.) {
                     j++;
                     a[j] = c[i+3] + d[i+3] * e[i+3];
@@ -392,9 +392,35 @@ void s258_sse(struct args_t * func_args)
             if(a[i] > 0 && a[i+1] > 0 && a[i+2] > 0 && a[i+3] > 0){
                 s_ = _mm_mul_ps(d_, d_);
                 s = d[i+3] * d[i+3];
+                _mm_store_ps(&b[i], _mm_add_ps(_mm_mul_ps(s_, c_), d_));
+                _mm_store_ps(&e[i], _mm_mul_ps(_mm_add_ps(s_, one_), aa_));
             }
-            _mm_store_ps(&b[i], _mm_add_ps(_mm_mul_ps(s_, c_), d_));
-            _mm_store_ps(&e[i], _mm_mul_ps(_mm_add_ps(s_, one_), aa_));
+            else if(!(a[i] > 0) && !(a[i+1] > 0) && !(a[i+2] > 0) && !(a[i+3] > 0)){
+                _mm_store_ps(&b[i], _mm_add_ps(_mm_mul_ps(s_, c_), d_));
+                _mm_store_ps(&e[i], _mm_mul_ps(_mm_add_ps(s_, one_), aa_));
+            }
+            else{
+                if (a[i] > 0.) {
+                    s = d[i] * d[i];
+                }
+                b[i] = s * c[i] + d[i];
+                e[i] = (s + (real_t)1.) * aa[0][i];
+                if (a[i+1] > 0.) {
+                    s = d[i+1] * d[i+1];
+                }
+                b[i+1] = s * c[i+1] + d[i+1];
+                e[i+1] = (s + (real_t)1.) * aa[0][i+1];
+                if (a[i+2] > 0.) {
+                    s = d[i+2] * d[i+2];
+                }
+                b[i+2] = s * c[i+2] + d[i+2];
+                e[i+2] = (s + (real_t)1.) * aa[0][i+2];
+                if (a[i+3] > 0.) {
+                    s = d[i+3] * d[i+3];
+                }
+                b[i+3] = s * c[i+3] + d[i+3];
+                e[i+3] = (s + (real_t)1.) * aa[0][i+3];
+            }
         }
         for(; i < LEN_2D; ++i){
             if (a[i] > 0.) {
