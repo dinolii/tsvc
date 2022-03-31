@@ -1,7 +1,7 @@
 
 include ../makefiles/Makefile.defs
 
-COMMON_FILES=dummy.o common.o tsvc_baseline.o tsvc_sse.o
+COMMON_FILES=dummy.o common.o tsvc_baseline.o tsvc_sse.o tsvc_avx.o
 
 BIN_DIR=../bin/$(COMPILER)
 
