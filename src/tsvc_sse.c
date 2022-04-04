@@ -712,7 +712,11 @@ void s278_sse(struct args_t * func_args)
                 __m128 neg_c = _mm_sub_ps(_mm_setzero_ps(), c_);
                 __m128 d_ = _mm_load_ps(&d[i]);
                 __m128 e_ = _mm_load_ps(&e[i]);
-                _mm_store_ps(&c[i], _mm_add_ps(neg_c, _mm_mul_ps(d_, e_)));
+                __m128 res_ = _mm_add_ps(neg_c, _mm_mul_ps(d_, e_));
+                _mm_store_ps(&c[i], res_);
+                __m128 b_ = _mm_load_ps(&b[i]);
+                _mm_store_ps(&a[i], _mm_add_ps(b_, _mm_mul_ps(res_, d_)));
+
             }
             else if(!(a[i] > (real_t)0.) && !(a[i+1] > (real_t)0.) && !(a[i+2] > (real_t)0.) && !(a[i+3] > (real_t)0.)){
                 __m128 b_ = _mm_load_ps(&b[i]);
@@ -722,7 +726,8 @@ void s278_sse(struct args_t * func_args)
                 __m128 res = _mm_add_ps(neg_b, _mm_mul_ps(d_, e_));
                 _mm_store_ps(&b[i], res);
                 __m128 c_ = _mm_load_ps(&c[i]);
-                _mm_store_ps(&a[i], _mm_add_ps(res, _mm_mul_ps(c_, d_)));
+                b_ = _mm_load_ps(&b[i]);
+                _mm_store_ps(&a[i], _mm_add_ps(b_, _mm_mul_ps(c_, d_)));
             }
             else{
                 if(a[i] > (real_t)0.){
