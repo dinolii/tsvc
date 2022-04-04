@@ -1001,7 +1001,10 @@ void s278_avx(struct args_t * func_args)
                 __m256 neg_c = _mm256_sub_ps(_mm256_setzero_ps(), c_);
                 __m256 d_ = _mm256_load_ps(&d[i]);
                 __m256 e_ = _mm256_load_ps(&e[i]);
-                _mm256_store_ps(&c[i], _mm256_add_ps(neg_c, _mm256_mul_ps(d_, e_)));
+                __m256 res_ = _mm256_add_ps(neg_c, _mm256_mul_ps(d_, e_));
+                _mm256_store_ps(&c[i], res_);
+                __m256 b_ = _mm256_load_ps(&b[i]);
+                _mm256_store_ps(&a[i], _mm256_add_ps(b_, _mm256_mul_ps(res_, d_)));
             }
             else if(!(a[i] > (real_t)0.) && !(a[i+1] > (real_t)0.) && !(a[i+2] > (real_t)0.) && !(a[i+3] > (real_t)0.)
             && !(a[i+4] > (real_t)0.) && !(a[i+5] > (real_t)0.) && !(a[i+6] > (real_t)0.) && !(a[i+7] > (real_t)0.)){
