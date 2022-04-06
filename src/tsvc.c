@@ -175,8 +175,8 @@ void s258_baseline(struct args_t * func_args)
     gettimeofday(&func_args->t1, NULL);
 
     real_t s;
-    for (int nl = 0; nl < 1; nl++) {
-    //for (int nl = 0; nl < iterations; nl++) {
+    //for (int nl = 0; nl < 1; nl++) {
+    for (int nl = 0; nl < iterations; nl++) {
         s = 0.;
         for (int i = 0; i < LEN_2D; ++i) {
             if (a[i] > 0.) {
@@ -1036,13 +1036,13 @@ void s258_avx(struct args_t * func_args)
 
     real_t s;
     int vf = 8;
-    for (int nl = 0; nl < 1; nl++){
-    //for (int nl = 0; nl < iterations; nl++) {
+    //for (int nl = 0; nl < 1; nl++){
+    for (int nl = 0; nl < iterations; nl++) {
         s = 0.;
         int i = 0;
         int upper_bound = LEN_2D / vf * vf;
         for (; i < upper_bound; i += vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask == 255){
                 __m256 aa_ = _mm256_load_ps(&(aa[0][i]));
@@ -2620,8 +2620,8 @@ real_t s258(struct args_t * func_args)
 //    wrap-around scalar under an if
 
     initialise_arrays(__func__);
-    s258_baseline(func_args);
-    //s258_avx(func_args);
+    //s258_baseline(func_args);
+    s258_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s271(struct args_t * func_args)
@@ -2810,32 +2810,78 @@ int main(int argc, char ** argv){
     int n3 = 1;
     int* ip;
     real_t s1,s2;
+    char name[100];
+    strcpy(name, argv[1]);
     init(&ip, &s1, &s2);
     printf("Loop \tTime(sec) \tChecksum\n");
-    time_function(&s258, NULL);
-    return EXIT_SUCCESS;
-    time_function(&s123, NULL);
-    time_function(&s124, NULL);
-    time_function(&s161, NULL);
-    time_function(&s1161, NULL);
-    time_function(&s253, NULL);
-    time_function(&s258, NULL);
-    time_function(&s271, NULL);
-    time_function(&s273, NULL);
-    time_function(&s274, NULL);
-    time_function(&s277, NULL);
-    time_function(&s278, NULL);
-    time_function(&s2711, NULL);
-    time_function(&s2712, NULL);
-    time_function(&s314, NULL);
-    time_function(&s315, NULL);
-    time_function(&s316, NULL);
-    time_function(&s3111, NULL);
-    time_function(&s3113, NULL);
-    time_function(&s341, NULL);
-    time_function(&s342, NULL);
-    time_function(&s343, NULL);
-    time_function(&s443, NULL);
-    time_function(&vif, NULL);
+    if(strcmp(name, "s123") == 0){
+        time_function(&s123, NULL);
+    }
+    if(strcmp(name, "s124") == 0){
+        time_function(&s124, NULL);
+    }
+    if(strcmp(name, "s161") == 0){
+        time_function(&s161, NULL);
+    }
+    if(strcmp(name, "s1161") == 0){
+        time_function(&s1161, NULL);
+    }
+    if(strcmp(name, "s253") == 0){
+        time_function(&s253, NULL);
+    }
+    if(strcmp(name, "s258") == 0){
+        time_function(&s258, NULL);
+    }
+    if(strcmp(name, "s271") == 0){
+        time_function(&s271, NULL);
+    }
+    if(strcmp(name, "s273") == 0){
+        time_function(&s273, NULL);
+    }
+    if(strcmp(name, "s274") == 0){
+        time_function(&s274, NULL);
+    }
+    if(strcmp(name, "s277") == 0){
+        time_function(&s277, NULL);
+    }
+    if(strcmp(name, "s278") == 0){
+        time_function(&s278, NULL);
+    }
+    if(strcmp(name, "s2711") == 0){
+        time_function(&s2711, NULL);
+    }
+    if(strcmp(name, "s2712") == 0){
+        time_function(&s2712, NULL);
+    }
+    if(strcmp(name, "s314") == 0){
+        time_function(&s314, NULL);
+    }
+    if(strcmp(name, "s315") == 0){
+        time_function(&s315, NULL);
+    }
+    if(strcmp(name, "s316") == 0){
+        time_function(&s316, NULL);
+    }
+    if(strcmp(name, "s3111") == 0){
+        time_function(&s3111, NULL);
+    }
+    if(strcmp(name, "s3113") == 0){
+        time_function(&s3113, NULL);
+    }
+    if(strcmp(name, "s341") == 0){
+        time_function(&s341, NULL);
+    }
+    if(strcmp(name, "s342") == 0){
+        time_function(&s342, NULL);
+    }
+    if(strcmp(name, "s343") == 0){
+        time_function(&s343, NULL);
+    }
+    if(strcmp(name, "s443") == 0){
+        time_function(&s443, NULL);
+    }
+    if(strcmp(name, "vif") == 0){
+        time_function(&vif, NULL);
+    }
     return EXIT_SUCCESS;
 }
