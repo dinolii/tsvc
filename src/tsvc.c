@@ -784,7 +784,7 @@ void s161_avx(struct args_t * func_args)
         int i =0;
         int upper_bound = (LEN_1D - 1)/vf*vf;
         for(; i < upper_bound; i+=vf){
-            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(),_CMP_GT_OQ);
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(),_CMP_LT_OQ);
             int mask = _mm256_movemask_ps(cmp);
 	    if(mask == 255){
                 __m256 a_ = _mm256_load_ps(&a[i]);
@@ -1839,7 +1839,7 @@ real_t s315_avx(struct args_t * func_args)
         int i = 0;
         int upper_bound = LEN_1D / vf * vf;
         for(; i < upper_bound; i+= vf){
-            __m256 cmp = _mm256_cmp_ps(_mm256_set1_ps(a[i]), _mm256_add_ps(_mm256_set_ps(0., 0., 0., 0., 0., 0., 0., -1.),_mm256_load_ps(&a[i])), _CMP_GT_OQ);
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_GT_OQ);
 	    int mask = _mm256_movemask_ps(cmp);
             if (mask==255) {
                 if(a[i] > a[i+1] && a[i] > a[i+2] && a[i] > a[i+3]
@@ -1946,7 +1946,7 @@ real_t s316_avx(struct args_t * func_args)
     int vf = 8;
     for (int nl = 0; nl < iterations*5; nl++) {
         x = a[0];
-        int i = 1;
+        int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for(; i < upper_bound; i+=vf){
 	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_LT_OQ);
@@ -2567,7 +2567,7 @@ real_t s123(struct args_t * func_args)
 //    not vectorizable, the condition cannot be speculated
 
     initialise_arrays(__func__);
-    s123_avx(func_args);
+    s123_baseline(func_args);
     return calc_checksum(__func__);
 }
 
@@ -2578,7 +2578,7 @@ real_t s124(struct args_t * func_args)
 //    induction variable under both sides of if (same value)
 
     initialise_arrays(__func__);
-    s124_avx(func_args);
+    s124_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s161(struct args_t * func_args)
@@ -2589,7 +2589,7 @@ real_t s161(struct args_t * func_args)
 //    between statements in mutually exclusive regions.
 
     initialise_arrays(__func__);
-    s161_avx(func_args);
+    s161_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s1161(struct args_t * func_args)
@@ -2600,7 +2600,7 @@ real_t s1161(struct args_t * func_args)
 //    between statements in mutually exclusive regions.
 
     initialise_arrays(__func__);
-    s1161_avx(func_args);
+    s1161_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s253(struct args_t * func_args)
@@ -2610,7 +2610,7 @@ real_t s253(struct args_t * func_args)
 //    scalar expansio assigned under if
 
     initialise_arrays(__func__ );
-    s253_avx(func_args);
+    s253_baseline(func_args);
     return calc_checksum(__func__ );
 }
 real_t s258(struct args_t * func_args)
@@ -2620,8 +2620,7 @@ real_t s258(struct args_t * func_args)
 //    wrap-around scalar under an if
 
     initialise_arrays(__func__);
-    //s258_baseline(func_args);
-    s258_avx(func_args);
+    s258_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s271(struct args_t * func_args)
@@ -2631,7 +2630,7 @@ real_t s271(struct args_t * func_args)
 //    loop with singularity handling
 
     initialise_arrays(__func__);
-    s271_avx(func_args);
+    s271_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s273(struct args_t * func_args)
@@ -2641,7 +2640,7 @@ real_t s273(struct args_t * func_args)
 //    simple loop with dependent conditional
 
     initialise_arrays(__func__);
-    s273_avx(func_args);
+    s273_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s274(struct args_t * func_args)
@@ -2650,7 +2649,7 @@ real_t s274(struct args_t * func_args)
 //    control flow
 //    complex loop with dependent conditional
     initialise_arrays(__func__ );
-    s274_avx(func_args);
+    s274_baseline(func_args);
     return calc_checksum(__func__ );
 }
 real_t s277(struct args_t * func_args)
@@ -2660,7 +2659,7 @@ real_t s277(struct args_t * func_args)
 //    test for dependences arising from guard variable computation.
 
     initialise_arrays(__func__);
-    s277_avx(func_args);
+    s277_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s278(struct args_t * func_args)
@@ -2670,7 +2669,7 @@ real_t s278(struct args_t * func_args)
 //    if/goto to block if-then-else
 
     initialise_arrays(__func__);
-    s278_avx(func_args);
+    s278_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s2711(struct args_t * func_args)
@@ -2680,7 +2679,7 @@ real_t s2711(struct args_t * func_args)
 //    semantic if removal
 
     initialise_arrays(__func__);
-    s2711_avx(func_args);
+    s2711_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s2712(struct args_t * func_args)
@@ -2690,7 +2689,7 @@ real_t s2712(struct args_t * func_args)
 //    if to elemental min
 
     initialise_arrays(__func__);
-    s2712_avx(func_args);
+    s2712_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s314(struct args_t * func_args)
@@ -2700,7 +2699,7 @@ real_t s314(struct args_t * func_args)
 //    if to max reduction
 
     initialise_arrays(__func__);
-    return s314_avx(func_args);
+    return s314_baseline(func_args);
 }
 real_t s315(struct args_t * func_args)
 {
@@ -2709,7 +2708,7 @@ real_t s315(struct args_t * func_args)
 //    if to max with index reductio 1 dimension
 
     initialise_arrays(__func__);
-    return s315_avx(func_args);
+    return s315_baseline(func_args);
 }
 real_t s316(struct args_t * func_args)
 {
@@ -2718,7 +2717,7 @@ real_t s316(struct args_t * func_args)
 //    if to min reduction
 
     initialise_arrays(__func__);
-    return s316_avx(func_args);
+    return s316_baseline(func_args);
 }
 real_t s3111(struct args_t * func_args)
 {
@@ -2727,7 +2726,7 @@ real_t s3111(struct args_t * func_args)
 //    conditional sum reduction
 
     initialise_arrays(__func__);
-    return s3111_avx(func_args);
+    return s3111_baseline(func_args);
 }
 real_t s3113(struct args_t * func_args)
 {
@@ -2736,7 +2735,7 @@ real_t s3113(struct args_t * func_args)
 //    maximum of absolute value
 
     initialise_arrays(__func__);
-    return s3113_avx(func_args);
+    return s3113_baseline(func_args);
 }
 real_t s341(struct args_t * func_args)
 {
@@ -2746,7 +2745,7 @@ real_t s341(struct args_t * func_args)
 //    not vectorizable, value of j in unknown at each iteration
 
     initialise_arrays(__func__);
-    s341_avx(func_args);
+    s341_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s342(struct args_t * func_args)
@@ -2757,7 +2756,7 @@ real_t s342(struct args_t * func_args)
 //    not vectorizable, value of j in unknown at each iteration
 
     initialise_arrays(__func__);
-    s342_avx(func_args);
+    s342_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s343(struct args_t * func_args)
@@ -2768,7 +2767,7 @@ real_t s343(struct args_t * func_args)
 //    not vectorizable, value of k in unknown at each iteration
 
     initialise_arrays(__func__);
-    s343_avx(func_args);
+    s343_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t s443(struct args_t * func_args)
@@ -2778,7 +2777,7 @@ real_t s443(struct args_t * func_args)
 //    arithmetic if
 
     initialise_arrays(__func__);
-    s443_avx(func_args);
+    s443_baseline(func_args);
     return calc_checksum(__func__);
 }
 real_t vif(struct args_t * func_args)
@@ -2788,7 +2787,7 @@ real_t vif(struct args_t * func_args)
 //    vector if
 
     initialise_arrays(__func__);
-    vif_avx(func_args);
+    vif_baseline(func_args);
     return calc_checksum(__func__);
 }
 typedef real_t(*test_function_t)(struct args_t *);
