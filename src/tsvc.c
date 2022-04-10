@@ -556,16 +556,22 @@ void s123_avx(struct args_t * func_args)
 
     int j;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         j = -1;
         int i = 0;
         int upper_bound = (LEN_1D/2)/vf*vf;
         for (; i < upper_bound; i+=vf) {
+            total_count+=1;
             j++;
             a[j] = b[i] + d[i] * e[i];
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&c[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
-	    int mask = _mm256_movemask_ps(cmp);
+	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&c[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+	        int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 j++;
                 a[j] = c[i] + d[i] * e[i];
                 j++;
@@ -598,12 +604,14 @@ void s123_avx(struct args_t * func_args)
                 a[j] = c[i+7] + d[i+7] * e[i+7];
             }
             else if(mask==0){
+                false_count += 1;
                 __m256 d_ = _mm256_load_ps(&d[i]);
                 __m256 e_ = _mm256_load_ps(&e[i]);
                 _mm256_store_ps(&a[j], _mm256_add_ps(_mm256_load_ps(&b[i]), _mm256_mul_ps(d_, e_)));
                 j += 7;
             }
             else{
+                divergent_count += 1;
                 if (c[i] > (real_t)0.) {
                     j++;
                     a[j] = c[i] + d[i] * e[i];
@@ -662,8 +670,11 @@ void s123_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s124_avx(struct args_t * func_args)
 {
@@ -675,14 +686,20 @@ void s124_avx(struct args_t * func_args)
 
     int j;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         j = -1;
         int i = 0;
         int upper_bound = (LEN_1D / vf * vf);
         for (; i < upper_bound; i+=vf) {
+            total_count += 1;
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 j++;
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -691,6 +708,7 @@ void s124_avx(struct args_t * func_args)
                 j += 7;
             }
             else if(mask==0){
+                false_count += 1;
                 j++;
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -698,7 +716,8 @@ void s124_avx(struct args_t * func_args)
                 _mm256_store_ps(&a[j], _mm256_add_ps(c_, _mm256_mul_ps(d_, e_)));
                 j += 7;
             }    
-	    else{
+	        else{
+                divergent_count += 1;
                 if (b[i] > (real_t)0.) {
                     j++;
                     a[j] = b[i] + d[i] * e[i];
@@ -766,10 +785,14 @@ void s124_avx(struct args_t * func_args)
                 a[j] = c[i] + d[i] * e[i];
             }
         }
+
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s161_avx(struct args_t * func_args)
 {
@@ -780,24 +803,32 @@ void s161_avx(struct args_t * func_args)
 
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for(int nl = 0; nl < iterations/2; nl++){
         int i =0;
         int upper_bound = (LEN_1D - 1)/vf*vf;
         for(; i < upper_bound; i+=vf){
+            total_count += 1;
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(),_CMP_LT_OQ);
             int mask = _mm256_movemask_ps(cmp);
-	    if(mask == 255){
+	        if(mask == 255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
                 _mm256_store_ps(&c[i+1], _mm256_add_ps(a_, _mm256_mul_ps(d_, d_)));
             }
-	    else if(mask == 0){
+	        else if(mask == 0){
+                false_count += 1;
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
                 __m256 e_ = _mm256_load_ps(&e[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(c_, _mm256_mul_ps(d_, e_)));
             }
             else{
+                divergent_count += 1;
                 if(b[i] < (real_t)0.){
                     c[i+1] = a[i] + d[i] * d[i];
                 }
@@ -858,30 +889,41 @@ void s161_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s1161_avx(struct args_t * func_args){
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for(int nl = 0; nl < iterations; nl++){
         int i =0;
         int upper_bound = (LEN_1D - 1)/vf*vf;
         for(; i < upper_bound; i+=vf){
-        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&c[i]), _mm256_setzero_ps(), _CMP_LT_OQ);
-        int mask = _mm256_movemask_ps(cmp);
-        if(mask==255){
-            __m256 a_ = _mm256_load_ps(&a[i]);
-            __m256 d_ = _mm256_load_ps(&d[i]);
-            _mm256_store_ps(&b[i], _mm256_add_ps(a_, _mm256_mul_ps(d_, d_)));
-        }
-        else if(mask==0){
-            __m256 c_ = _mm256_load_ps(&c[i]);
-            __m256 d_ = _mm256_load_ps(&d[i]);
-            __m256 e_ = _mm256_load_ps(&e[i]);
-            _mm256_store_ps(&a[i], _mm256_add_ps(c_, _mm256_mul_ps(d_, e_)));
-        }    
-	else{
+            total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&c[i]), _mm256_setzero_ps(), _CMP_LT_OQ);
+            int mask = _mm256_movemask_ps(cmp);
+            if(mask==255){
+                true_count += 1;
+                __m256 a_ = _mm256_load_ps(&a[i]);
+                __m256 d_ = _mm256_load_ps(&d[i]);
+                _mm256_store_ps(&b[i], _mm256_add_ps(a_, _mm256_mul_ps(d_, d_)));
+            }
+            else if(mask==0){
+                false_count += 1;
+                __m256 c_ = _mm256_load_ps(&c[i]);
+                __m256 d_ = _mm256_load_ps(&d[i]);
+                __m256 e_ = _mm256_load_ps(&e[i]);
+                _mm256_store_ps(&a[i], _mm256_add_ps(c_, _mm256_mul_ps(d_, e_)));
+            }
+	        else{
+                divergent_count += 1;
                 if(c[i] < (real_t)0.){
                     b[i] = a[i] + d[i] * d[i];
                 }
@@ -942,9 +984,11 @@ void s1161_avx(struct args_t * func_args){
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
-
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s253_avx(struct args_t * func_args)
 {
@@ -956,13 +1000,19 @@ void s253_avx(struct args_t * func_args)
 
     real_t s;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count =  0;
     int upper_bound = LEN_1D / vf * vf;
     for (int nl = 0; nl < iterations; nl++) {
         int i = 0;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_load_ps(&b[i]), _CMP_GT_OQ);
+            total_count += 1;
+	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_load_ps(&b[i]), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask == 255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -973,9 +1023,10 @@ void s253_avx(struct args_t * func_args)
                 _mm256_store_ps(&a[i], s_);
             }
             else if(mask==0){
-
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (a[i] > b[i]) {
                     s = a[i] - b[i] * d[i];
                     c[i] += s;
@@ -1027,8 +1078,11 @@ void s253_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s258_avx(struct args_t * func_args)
 {
@@ -1036,15 +1090,21 @@ void s258_avx(struct args_t * func_args)
 
     real_t s;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     //for (int nl = 0; nl < 1; nl++){
     for (int nl = 0; nl < iterations; nl++) {
         s = 0.;
         int i = 0;
         int upper_bound = LEN_2D / vf * vf;
         for (; i < upper_bound; i += vf) {
+            total_count += 1;
 	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask == 255){
+                true_count += 1;
                 __m256 aa_ = _mm256_load_ps(&(aa[0][i]));
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -1056,6 +1116,7 @@ void s258_avx(struct args_t * func_args)
                 _mm256_store_ps(&e[i], _mm256_mul_ps(_mm256_add_ps(s_, one_), aa_));
             }
             else if(mask==0){
+                false_count += 1;
                 __m256 aa_ = _mm256_load_ps(&(aa[0][i]));
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -1065,6 +1126,7 @@ void s258_avx(struct args_t * func_args)
                 _mm256_store_ps(&e[i], _mm256_mul_ps(_mm256_add_ps(s_, one_), aa_));
             }
             else{
+                divergent_count += 1;
                 if (a[i] > 0.) {
                     s = d[i] * d[i];
                 }
@@ -1116,30 +1178,40 @@ void s258_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s271_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < 4*iterations; nl++) {
         int i = 0;
         int upper_bound = (LEN_1D / vf * vf);
         for (; i < upper_bound; i+=vf) {
+            total_count += 1;
             __m256 b_ = _mm256_load_ps(&b[i]);
             __m256 zero_ = _mm256_setzero_ps();
             __m256 cmp = _mm256_cmp_ps(b_, zero_, _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask == 255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(a_, _mm256_mul_ps(b_, c_)));
             }
             else if(mask == 0){
-
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (b[i] > (real_t)0.) {
                     a[i] += b[i] * c[i];
                 }
@@ -1173,17 +1245,25 @@ void s271_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s273_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D / vf * vf;
         for (; i < upper_bound; i+=vf) {
+            total_count += 1;
             __m256 a_ = _mm256_load_ps(&a[i]);
             __m256 d_ = _mm256_load_ps(&d[i]);
             __m256 e_ = _mm256_load_ps(&e[i]);
@@ -1191,13 +1271,15 @@ void s273_avx(struct args_t * func_args)
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_LT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 _mm256_store_ps(&b[i], _mm256_add_ps(b_, _mm256_mul_ps(d_, e_)));
             }
             else if(mask==0){
-
+                false_count += 1;
             }
-	    else{
+	        else{
+                divergent_count += 1;
                 if (a[i] < (real_t)0.)
                     b[i] += d[i] * e[i];
                 if (a[i+1] < (real_t)0.)
@@ -1227,34 +1309,45 @@ void s273_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s274_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for (;i < upper_bound; i+=vf) {
+            total_count += 1;
             __m256 c_ = _mm256_load_ps(&c[i]);
             __m256 d_ = _mm256_load_ps(&d[i]);
             __m256 e_ = _mm256_load_ps(&e[i]);
             __m256 mul = _mm256_mul_ps(e_, d_);
             __m256 res = _mm256_add_ps(c_, mul);
             _mm256_store_ps(&a[i], res);
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 _mm256_store_ps(&b[i], _mm256_add_ps(a_, b_));
             }
             else if(mask==0){
+                false_count += 1;
                 _mm256_store_ps(&a[i], mul);
             }
             else{
+                divergent_count += 1;
                 if(a[i] > (real_t)0.){
                     b[i] = a[i] + b[i];
                 }
@@ -1315,23 +1408,32 @@ void s274_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s277_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         int i = 0;
         int upper_bound = (LEN_1D - 1) / vf * vf;
         for(; i < upper_bound; i+=vf){
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+            total_count += 1;
+	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
-
+                true_count += 1;
             }
-	    else if(mask==0){
+	        else if(mask==0){
+                false_count += 1;
                 __m256 cmp2 = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GE_OQ);
                 int mask2 = _mm256_movemask_ps(cmp2);
                 if(mask2==255){
@@ -1346,59 +1448,60 @@ void s277_avx(struct args_t * func_args)
                     __m256 d_ = _mm256_load_ps(&d[i]);
                     _mm256_store_ps(&a[i], _mm256_add_ps(a_, _mm256_mul_ps(c_, d_)));
                 }
-		else{
-                    if(b[i] >= (real_t)0.){
-                        b[i+1] = c[i] + d[i] * e[i];
-                    }
-                    else{
-                        a[i] += c[i] * d[i];
-                    }
-                    if(b[i+1] >= (real_t)0.){
-                        b[i+2] = c[i+1] + d[i+1] * e[i+1];
-                    }
-                    else{
-                        a[i+1] += c[i+1] * d[i+1];
-                    }
-                    if(b[i+2] >= (real_t)0.){
-                        b[i+3] = c[i+2] + d[i+2] * e[i+2];
-                    }
-                    else{
-                        a[i+2] += c[i+2] * d[i+2];
-                    }
-                    if(b[i+3] >= (real_t)0.){
-                        b[i+4] = c[i+3] + d[i+3] * e[i+3];
-                    }
-                    else{
-                        a[i+3] += c[i+3] * d[i+3];
-                    }
-                    if(b[i+4] >= (real_t)0.){
-                        b[i+5] = c[i+4] + d[i+4] * e[i+4];
-                    }
-                    else{
-                        a[i+4] += c[i+4] * d[i+4];
-                    }
-                    if(b[i+5] >= (real_t)0.){
-                        b[i+6] = c[i+5] + d[i+5] * e[i+5];
-                    }
-                    else{
-                        a[i+5] += c[i+5] * d[i+5];
-                    }
-                    if(b[i+6] >= (real_t)0.){
-                        b[i+7] = c[i+6] + d[i+6] * e[i+6];
-                    }
-                    else{
-                        a[i+6] += c[i+6] * d[i+6];
-                    }
-                    if(b[i+7] >= (real_t)0.){
-                        b[i+8] = c[i+7] + d[i+7] * e[i+7];
-                    }
-                    else{
-                        a[i+7] += c[i+7] * d[i+7];
-                    }
+            else{
+                if(b[i] >= (real_t)0.){
+                    b[i+1] = c[i] + d[i] * e[i];
                 }
+                else{
+                    a[i] += c[i] * d[i];
+                }
+                if(b[i+1] >= (real_t)0.){
+                    b[i+2] = c[i+1] + d[i+1] * e[i+1];
+                }
+                else{
+                    a[i+1] += c[i+1] * d[i+1];
+                }
+                if(b[i+2] >= (real_t)0.){
+                    b[i+3] = c[i+2] + d[i+2] * e[i+2];
+                }
+                else{
+                    a[i+2] += c[i+2] * d[i+2];
+                }
+                if(b[i+3] >= (real_t)0.){
+                    b[i+4] = c[i+3] + d[i+3] * e[i+3];
+                }
+                else{
+                    a[i+3] += c[i+3] * d[i+3];
+                }
+                if(b[i+4] >= (real_t)0.){
+                    b[i+5] = c[i+4] + d[i+4] * e[i+4];
+                }
+                else{
+                    a[i+4] += c[i+4] * d[i+4];
+                }
+                if(b[i+5] >= (real_t)0.){
+                    b[i+6] = c[i+5] + d[i+5] * e[i+5];
+                }
+                else{
+                    a[i+5] += c[i+5] * d[i+5];
+                }
+                if(b[i+6] >= (real_t)0.){
+                    b[i+7] = c[i+6] + d[i+6] * e[i+6];
+                }
+                else{
+                    a[i+6] += c[i+6] * d[i+6];
+                }
+                if(b[i+7] >= (real_t)0.){
+                    b[i+8] = c[i+7] + d[i+7] * e[i+7];
+                }
+                else{
+                    a[i+7] += c[i+7] * d[i+7];
+                }
+            }
 
             }
             else{
+                divergent_count += 1;
                 if(a[i] >= (real_t)0.){
 
                 }
@@ -1504,30 +1607,41 @@ void s277_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+
 }
 void s278_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for(;i<upper_bound;i+=vf){
+            total_count += 1;
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 __m256 neg_c = _mm256_sub_ps(_mm256_setzero_ps(), c_);
                 __m256 d_ = _mm256_load_ps(&d[i]);
                 __m256 e_ = _mm256_load_ps(&e[i]);
-		__m256 res_ = _mm256_add_ps(neg_c, _mm256_mul_ps(d_, e_));
+		        __m256 res_ = _mm256_add_ps(neg_c, _mm256_mul_ps(d_, e_));
                 _mm256_store_ps(&c[i], res_);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(b_, _mm256_mul_ps(res_, d_)));
             }
             else if(mask==0){
+                false_count += 1;
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 neg_b = _mm256_sub_ps(_mm256_setzero_ps(), b_);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -1538,6 +1652,7 @@ void s278_avx(struct args_t * func_args)
                 _mm256_store_ps(&a[i], _mm256_add_ps(res, _mm256_mul_ps(c_, d_)));
             }
             else{
+                divergent_count += 1;
                 if(a[i] > (real_t)0.){
                     c[i] = -c[i] + d[i] * e[i];
                 }
@@ -1609,29 +1724,39 @@ void s278_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s2711_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < 4*iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_NEQ_OQ);
+            total_count += 1;
+	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_NEQ_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(a_, _mm256_mul_ps(b_, c_)));
             }
             else if(mask==0){
-
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (b[i] != (real_t)0.0) {
                     a[i] += b[i] * c[i];
                 }
@@ -1665,8 +1790,11 @@ void s2711_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s2712_avx(struct args_t * func_args)
 {
@@ -1675,22 +1803,29 @@ void s2712_avx(struct args_t * func_args)
 //    if to elemental min
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < 4*iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D / vf * vf;
         for (; i < upper_bound; i+=vf) {
+            total_count += 1;
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_load_ps(&b[i]), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(a_, _mm256_mul_ps(b_, c_)));
             }
             else if(mask==0){
-
+                false_count +=1;
             }
-	    else{
+	        else{
+                divergent_count += 1;
                 if (a[i] > b[i]) {
                     a[i] += b[i] * c[i];
                 }
@@ -1724,8 +1859,11 @@ void s2712_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 real_t s314_avx(struct args_t * func_args)
 {
@@ -1737,14 +1875,20 @@ real_t s314_avx(struct args_t * func_args)
 
     real_t x;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations*5; nl++) {
         x = a[0];
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_GT_OQ);
+	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if (mask==255) {
+                true_count += 1;
                 if(a[i] > a[i+1] && a[i] > a[i+2] && a[i] > a[i+3]
                 && a[i] > a[i+4] && a[i] > a[i+5] && a[i] > a[i+6] && a[i] > a[i+7]){
                     x = a[i];
@@ -1779,9 +1923,10 @@ real_t s314_avx(struct args_t * func_args)
                 }
             }
             else if(mask==0){
-
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (a[i] > x) {
                     x = a[i];
                 }
@@ -1815,8 +1960,11 @@ real_t s314_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, x);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return x;
 }
 real_t s315_avx(struct args_t * func_args)
@@ -1833,15 +1981,21 @@ real_t s315_avx(struct args_t * func_args)
     real_t x, chksum;
     int index;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count  = 0;
     for (int nl = 0; nl < iterations; nl++) {
         x = a[0];
         index = 0;
         int i = 0;
         int upper_bound = LEN_1D / vf * vf;
         for(; i < upper_bound; i+= vf){
+            total_count += 1;
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_GT_OQ);
-	    int mask = _mm256_movemask_ps(cmp);
+	        int mask = _mm256_movemask_ps(cmp);
             if (mask==255) {
+                true_count += 1;
                 if(a[i] > a[i+1] && a[i] > a[i+2] && a[i] > a[i+3]
                    && a[i] > a[i+4] && a[i] > a[i+5] && a[i] > a[i+6] && a[i] > a[i+7]){
                     x = a[i];
@@ -1884,9 +2038,10 @@ real_t s315_avx(struct args_t * func_args)
                 }
             }
             else if(mask==0){
-
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (a[i] > x) {
                     x = a[i];
                     index = i;
@@ -1930,8 +2085,11 @@ real_t s315_avx(struct args_t * func_args)
         chksum = x + (real_t) index;
         dummy(a, b, c, d, e, aa, bb, cc, chksum);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return index + x + 1;
 }
 real_t s316_avx(struct args_t * func_args)
@@ -1944,14 +2102,20 @@ real_t s316_avx(struct args_t * func_args)
 
     real_t x;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations*5; nl++) {
         x = a[0];
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for(; i < upper_bound; i+=vf){
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_LT_OQ);
+	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_set1_ps(x), _CMP_LT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if (mask==255) {
+                true_count += 1;
                 if(a[i] < a[i+1] && a[i] < a[i+2] && a[i] < a[i+3]
             && a[i] < a[i+4] && a[i] < a[i+5] && a[i] < a[i+6] && a[i] < a[i+7]){
                     x = a[i];
@@ -1985,9 +2149,11 @@ real_t s316_avx(struct args_t * func_args)
                     x = a[i+7];
                 }
             }
-           else if(mask==0){
+            else if(mask==0){
+               false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (a[i] < x) {
                     x = a[i];
                 }
@@ -2021,8 +2187,11 @@ real_t s316_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, x);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return x;
 }
 real_t s3111_avx(struct args_t * func_args)
@@ -2034,14 +2203,20 @@ real_t s3111_avx(struct args_t * func_args)
 
     real_t sum;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations/2; nl++) {
         sum = 0.;
         int i = 0;
         int upper_bound = LEN_1D/vf * vf;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
-            if (mask == 255) {	
+            if (mask == 255) {
+                true_count += 1;
                 sum += a[i];
                 sum += a[i+1];
                 sum += a[i+2];
@@ -2052,8 +2227,10 @@ real_t s3111_avx(struct args_t * func_args)
                 sum += a[i+7];
             }
             else if(mask == 0){
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if (a[i] > (real_t)0.) {
                     sum += a[i];
                 }
@@ -2087,8 +2264,11 @@ real_t s3111_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, sum);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return sum;
 }
 real_t s3113_avx(struct args_t * func_args)
@@ -2099,14 +2279,20 @@ real_t s3113_avx(struct args_t * func_args)
 
     gettimeofday(&func_args->t1, NULL);
     int vf =8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     real_t max;
     for (int nl = 0; nl < iterations*4; nl++) {
         max = ABS(a[0]);
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for(; i < upper_bound; i+=vf){
+            total_count += 1;
             if((ABS(a[i])) > max && (ABS(a[i+1])) > max && (ABS(a[i+2])) > max && (ABS(a[i+3])) > max
             && (ABS(a[i+4])) > max && (ABS(a[i+5])) > max && (ABS(a[i+6])) > max && (ABS(a[i+6])) > max){
+                true_count += 1;
                 if((ABS(a[i])) > (ABS(a[i+1])) && (ABS(a[i])) > (ABS(a[i+2])) && (ABS(a[i])) > (ABS(a[i+3]))
                 && (ABS(a[i])) > (ABS(a[i+4])) && (ABS(a[i])) > (ABS(a[i+5])) && (ABS(a[i])) > (ABS(a[i+6]))
                 && (ABS(a[i])) > (ABS(a[i+7]))){
@@ -2150,9 +2336,10 @@ real_t s3113_avx(struct args_t * func_args)
             }
             else if(!((ABS(a[i])) > max) && !((ABS(a[i+1])) > max) && !((ABS(a[i+2])) > max) && !((ABS(a[i+3])) > max)
             && !((ABS(a[i+4])) > max) && !((ABS(a[i+5])) > max) && !((ABS(a[i+6])) > max) && !((ABS(a[i+7])) > max)){
-
+                false_count += 1;
             }
             else{
+                divergent_count += 1;
                 if ((ABS(a[i])) > max) {
                     max = ABS(a[i]);
                 }
@@ -2186,8 +2373,11 @@ real_t s3113_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, max);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return max;
 }
 void s341_avx(struct args_t * func_args)
@@ -2201,22 +2391,29 @@ void s341_avx(struct args_t * func_args)
 
     int j;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         j = -1;
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 j++;
                 _mm256_store_ps(&a[j], _mm256_load_ps(&b[i]));
                 j+=7;
             }
             else if(mask==0){
-
+                false_count += 1;
             }	
             else{
+                divergent_count += 1;
                 if (b[i] > (real_t)0.) {
                     j++;
                     a[j] = b[i];
@@ -2259,8 +2456,11 @@ void s341_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s342_avx(struct args_t * func_args)
 {
@@ -2273,22 +2473,29 @@ void s342_avx(struct args_t * func_args)
 
     int j = 0;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         j = -1;
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for(;i<upper_bound;i+=vf){
- 	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+ 	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if (mask==255) {
+                true_count += 1;
                 j++;
                 _mm256_store_ps(&a[i], _mm256_load_ps(&b[j]));
                 j+=7;
             }
             else if(mask==0){
-
+                false_count += 1;
             }	
             else{
+                divergent_count += 1;
                 if (a[i] > (real_t)0.) {
                     j++;
                     a[i] = b[j];
@@ -2331,8 +2538,11 @@ void s342_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s343_avx(struct args_t * func_args)
 {
@@ -2345,23 +2555,30 @@ void s343_avx(struct args_t * func_args)
 
     int k;
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < 10*(iterations/LEN_2D); nl++) {
         k = -1;
         int i = 0;
         int upper_bound = LEN_2D / vf * vf;
         for (; i < upper_bound; i+=vf) {
             for (int j = 0; j < LEN_2D; j++) {
-	        __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&(bb[j][i])), _mm256_setzero_ps(), _CMP_GT_OQ);
+	            total_count += 1;
+                __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&(bb[j][i])), _mm256_setzero_ps(), _CMP_GT_OQ);
                 int mask = _mm256_movemask_ps(cmp);
                 if (mask==255) {
+                    true_count += 1;
                     k++;
                     _mm256_store_ps(&flat_2d_array[k], _mm256_load_ps(&(aa[j][i])));
                     k+=7;
                 }
                 else if(mask==0){
-
+                    false_count += 1;
                 }	    
                 else{
+                    divergent_count += 1;
                     if (bb[j][i] > (real_t)0.) {
                         k++;
                         flat_2d_array[k] = aa[j][i];
@@ -2407,31 +2624,42 @@ void s343_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s443_avx(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < 2*iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D/vf*vf;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&d[i]), _mm256_setzero_ps(), _CMP_LE_OQ);
+	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&d[i]), _mm256_setzero_ps(), _CMP_LE_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
+                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 c_ = _mm256_load_ps(&c[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(a_, _mm256_mul_ps(b_, c_)));
             }
             else if(mask==0){
+                false_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 _mm256_store_ps(&a[i], _mm256_add_ps(a_, _mm256_mul_ps(b_, b_)));
             }	
             else{
+                divergent_count += 1;
                 if (d[i] <= (real_t)0.){
                     a[i] += b[i] * c[i];
                 }
@@ -2499,8 +2727,11 @@ void s443_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void vif_avx(struct args_t * func_args)
 {
@@ -2510,19 +2741,26 @@ void vif_avx(struct args_t * func_args)
 
     gettimeofday(&func_args->t1, NULL);
     int vf = 8;
+    int total_count = 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
     for (int nl = 0; nl < iterations; nl++) {
         int i = 0;
         int upper_bound = LEN_1D / vf * vf;
         for (; i < upper_bound; i+=vf) {
-	    __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
+	        total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if (mask==255) {
+                true_count += 1;
                 _mm256_store_ps(&a[i], _mm256_load_ps(&b[i]));
             }
             else if(mask==0){
-
+                false_count += 1;
             }	
             else{
+                divergent_count += 1;
                 if (b[i] > (real_t)0.) {
                     a[i] = b[i];
                 }
@@ -2556,8 +2794,11 @@ void vif_avx(struct args_t * func_args)
         }
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
-
     gettimeofday(&func_args->t2, NULL);
+    printf("\nTotal count:%d", total_count);
+    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 real_t s123(struct args_t * func_args)
 {
@@ -2567,7 +2808,7 @@ real_t s123(struct args_t * func_args)
 //    not vectorizable, the condition cannot be speculated
 
     initialise_arrays(__func__);
-    s123_baseline(func_args);
+    s123_avx(func_args);
     return calc_checksum(__func__);
 }
 
@@ -2578,7 +2819,7 @@ real_t s124(struct args_t * func_args)
 //    induction variable under both sides of if (same value)
 
     initialise_arrays(__func__);
-    s124_baseline(func_args);
+    s124_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s161(struct args_t * func_args)
@@ -2589,7 +2830,7 @@ real_t s161(struct args_t * func_args)
 //    between statements in mutually exclusive regions.
 
     initialise_arrays(__func__);
-    s161_baseline(func_args);
+    s161_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s1161(struct args_t * func_args)
@@ -2600,7 +2841,7 @@ real_t s1161(struct args_t * func_args)
 //    between statements in mutually exclusive regions.
 
     initialise_arrays(__func__);
-    s1161_baseline(func_args);
+    s1161_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s253(struct args_t * func_args)
@@ -2610,7 +2851,7 @@ real_t s253(struct args_t * func_args)
 //    scalar expansio assigned under if
 
     initialise_arrays(__func__ );
-    s253_baseline(func_args);
+    s253_avx(func_args);
     return calc_checksum(__func__ );
 }
 real_t s258(struct args_t * func_args)
@@ -2620,7 +2861,7 @@ real_t s258(struct args_t * func_args)
 //    wrap-around scalar under an if
 
     initialise_arrays(__func__);
-    s258_baseline(func_args);
+    s258_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s271(struct args_t * func_args)
@@ -2630,7 +2871,7 @@ real_t s271(struct args_t * func_args)
 //    loop with singularity handling
 
     initialise_arrays(__func__);
-    s271_baseline(func_args);
+    s271_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s273(struct args_t * func_args)
@@ -2640,7 +2881,7 @@ real_t s273(struct args_t * func_args)
 //    simple loop with dependent conditional
 
     initialise_arrays(__func__);
-    s273_baseline(func_args);
+    s273_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s274(struct args_t * func_args)
@@ -2649,7 +2890,7 @@ real_t s274(struct args_t * func_args)
 //    control flow
 //    complex loop with dependent conditional
     initialise_arrays(__func__ );
-    s274_baseline(func_args);
+    s274_avx(func_args);
     return calc_checksum(__func__ );
 }
 real_t s277(struct args_t * func_args)
@@ -2659,7 +2900,7 @@ real_t s277(struct args_t * func_args)
 //    test for dependences arising from guard variable computation.
 
     initialise_arrays(__func__);
-    s277_baseline(func_args);
+    s277_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s278(struct args_t * func_args)
@@ -2669,7 +2910,7 @@ real_t s278(struct args_t * func_args)
 //    if/goto to block if-then-else
 
     initialise_arrays(__func__);
-    s278_baseline(func_args);
+    s278_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s2711(struct args_t * func_args)
@@ -2679,7 +2920,7 @@ real_t s2711(struct args_t * func_args)
 //    semantic if removal
 
     initialise_arrays(__func__);
-    s2711_baseline(func_args);
+    s2711_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s2712(struct args_t * func_args)
@@ -2689,7 +2930,7 @@ real_t s2712(struct args_t * func_args)
 //    if to elemental min
 
     initialise_arrays(__func__);
-    s2712_baseline(func_args);
+    s2712_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s314(struct args_t * func_args)
@@ -2699,7 +2940,7 @@ real_t s314(struct args_t * func_args)
 //    if to max reduction
 
     initialise_arrays(__func__);
-    return s314_baseline(func_args);
+    return s314_avx(func_args);
 }
 real_t s315(struct args_t * func_args)
 {
@@ -2708,7 +2949,7 @@ real_t s315(struct args_t * func_args)
 //    if to max with index reductio 1 dimension
 
     initialise_arrays(__func__);
-    return s315_baseline(func_args);
+    return s315_avx(func_args);
 }
 real_t s316(struct args_t * func_args)
 {
@@ -2717,7 +2958,7 @@ real_t s316(struct args_t * func_args)
 //    if to min reduction
 
     initialise_arrays(__func__);
-    return s316_baseline(func_args);
+    return s316_avx(func_args);
 }
 real_t s3111(struct args_t * func_args)
 {
@@ -2726,7 +2967,7 @@ real_t s3111(struct args_t * func_args)
 //    conditional sum reduction
 
     initialise_arrays(__func__);
-    return s3111_baseline(func_args);
+    return s3111_avx(func_args);
 }
 real_t s3113(struct args_t * func_args)
 {
@@ -2735,7 +2976,7 @@ real_t s3113(struct args_t * func_args)
 //    maximum of absolute value
 
     initialise_arrays(__func__);
-    return s3113_baseline(func_args);
+    return s3113_avx(func_args);
 }
 real_t s341(struct args_t * func_args)
 {
@@ -2745,7 +2986,7 @@ real_t s341(struct args_t * func_args)
 //    not vectorizable, value of j in unknown at each iteration
 
     initialise_arrays(__func__);
-    s341_baseline(func_args);
+    s341_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s342(struct args_t * func_args)
@@ -2756,7 +2997,7 @@ real_t s342(struct args_t * func_args)
 //    not vectorizable, value of j in unknown at each iteration
 
     initialise_arrays(__func__);
-    s342_baseline(func_args);
+    s342_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s343(struct args_t * func_args)
@@ -2767,7 +3008,7 @@ real_t s343(struct args_t * func_args)
 //    not vectorizable, value of k in unknown at each iteration
 
     initialise_arrays(__func__);
-    s343_baseline(func_args);
+    s343_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t s443(struct args_t * func_args)
@@ -2777,7 +3018,7 @@ real_t s443(struct args_t * func_args)
 //    arithmetic if
 
     initialise_arrays(__func__);
-    s443_baseline(func_args);
+    s443_avx(func_args);
     return calc_checksum(__func__);
 }
 real_t vif(struct args_t * func_args)
@@ -2787,7 +3028,7 @@ real_t vif(struct args_t * func_args)
 //    vector if
 
     initialise_arrays(__func__);
-    vif_baseline(func_args);
+    vif_avx(func_args);
     return calc_checksum(__func__);
 }
 typedef real_t(*test_function_t)(struct args_t *);
