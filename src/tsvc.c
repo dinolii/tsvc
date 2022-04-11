@@ -205,6 +205,27 @@ void s271_baseline(struct args_t * func_args)
 
     gettimeofday(&func_args->t2, NULL);
 }
+void s272_baseline(struct args_t * func_args)
+{
+
+//    control flow
+//    loop with independent conditional
+
+    int t = *(int*)func_args->arg_info;
+    gettimeofday(&func_args->t1, NULL);
+
+    for (int nl = 0; nl < iterations; nl++) {
+        for (int i = 0; i < LEN_1D; i++) {
+            if (e[i] >= t) {
+                a[i] += c[i] * d[i];
+                b[i] += c[i] * c[i];
+            }
+        }
+        dummy(a, b, c, d, e, aa, bb, cc, 0.);
+    }
+
+    gettimeofday(&func_args->t2, NULL);
+}
 void s273_baseline(struct args_t * func_args)
 {
     gettimeofday(&func_args->t1, NULL);
@@ -392,6 +413,99 @@ real_t s316_baseline(struct args_t * func_args)
 
     gettimeofday(&func_args->t2, NULL);
     return x;
+}
+real_t s318_baseline(struct args_t * func_args)
+{
+
+//    reductions
+//    isamax, max absolute value, increments not equal to 1
+
+    int inc = *(int*)func_args->arg_info;
+    gettimeofday(&func_args->t1, NULL);
+    printf("Inc:%d\n", inc);
+    int k, index;
+    real_t max, chksum;
+    for (int nl = 0; nl < iterations/2; nl++) {
+        k = 0;
+        index = 0;
+        max = ABS(a[0]);
+        k += inc;
+        for (int i = 1; i < LEN_1D; i++) {
+            if (ABS(a[k]) <= max) {
+                goto L5;
+            }
+            index = i;
+            max = ABS(a[k]);
+            L5:
+            k += inc;
+        }
+        chksum = max + (real_t) index;
+        dummy(a, b, c, d, e, aa, bb, cc, chksum);
+    }
+    printf("Max:%f Index:%d\n", max, index);
+    gettimeofday(&func_args->t2, NULL);
+    return max + index + 1;
+}
+real_t s3110_baseline(struct args_t * func_args)
+{
+
+//    reductions
+//    if to max with index reductio 2 dimensions
+//    similar to S315
+
+    gettimeofday(&func_args->t1, NULL);
+
+    int xindex, yindex;
+    real_t max, chksum;
+    for (int nl = 0; nl < 100*(iterations/(LEN_2D)); nl++) {
+        max = aa[(0)][0];
+        xindex = 0;
+        yindex = 0;
+        for (int i = 0; i < LEN_2D; i++) {
+            for (int j = 0; j < LEN_2D; j++) {
+                if (aa[i][j] > max) {
+                    max = aa[i][j];
+                    xindex = i;
+                    yindex = j;
+                }
+            }
+        }
+        chksum = max + (real_t) xindex + (real_t) yindex;
+        dummy(a, b, c, d, e, aa, bb, cc, chksum);
+    }
+
+    gettimeofday(&func_args->t2, NULL);
+    return max + xindex+1 + yindex+1;
+}
+real_t s13110_baseline(struct args_t * func_args)
+{
+
+//    reductions
+//    if to max with index reductio 2 dimensions
+
+    gettimeofday(&func_args->t1, NULL);
+
+    int xindex, yindex;
+    real_t max, chksum;
+    for (int nl = 0; nl < 100*(iterations/(LEN_2D)); nl++) {
+        max = aa[(0)][0];
+        xindex = 0;
+        yindex = 0;
+        for (int i = 0; i < LEN_2D; i++) {
+            for (int j = 0; j < LEN_2D; j++) {
+                if (aa[i][j] > max) {
+                    max = aa[i][j];
+                    xindex = i;
+                    yindex = j;
+                }
+            }
+        }
+        chksum = max + (real_t) xindex + (real_t) yindex;
+        dummy(a, b, c, d, e, aa, bb, cc, chksum);
+    }
+
+    gettimeofday(&func_args->t2, NULL);
+    return max + xindex+1 + yindex+1;
 }
 real_t s3111_baseline(struct args_t * func_args)
 {
@@ -1250,6 +1364,88 @@ void s271_avx(struct args_t * func_args)
     printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
     printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
     printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+}
+void s272_avx(struct args_t * func_args)
+{
+
+//    control flow
+//    loop with independent conditional
+
+    int t = *(int*)func_args->arg_info;
+    gettimeofday(&func_args->t1, NULL);
+
+    int vf = 8;
+    int total_count= 0;
+    int true_count = 0;
+    int false_count = 0;
+    int divergent_count = 0;
+    for (int nl = 0; nl < iterations; nl++) {
+        int upper_bound = LEN_1D / vf * vf;
+        int i =0;
+        for(; i < upper_bound; i+=vf){
+            total_count += 1;
+            __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&e[i]), _mm256_set1_ps(t), _CMP_GE_OQ);
+            int mask = _mm256_movemask_ps(cmp);
+            if(mask == 255){
+                true_count +=1;
+                _mm256_store_ps(&a[i],
+                                _mm256_add_ps(_mm256_load_ps(&a[i]),
+                                              _mm256_mul_ps(_mm256_load_ps(&c[i]),
+                                                            _mm256_load_ps(&d[i]))));
+                _mm256_store_ps(&b[i],
+                                _mm256_add_ps(_mm256_load_ps(&b[i]),
+                                              _mm256_mul_ps(_mm256_load_ps(&c[i]),
+                                                            _mm256_load_ps(&c[i]))));
+            }
+            else if(mask == 0){
+                false_count += 1;
+            }
+            else{
+                divergent_count += 1;
+                if (e[i] >= t) {
+                    a[i] += c[i] * d[i];
+                    b[i] += c[i] * c[i];
+                }
+                if (e[i+1] >= t) {
+                    a[i+1] += c[i+1] * d[i+1];
+                    b[i+1] += c[i+1] * c[i+1];
+                }
+                if (e[i+2] >= t) {
+                    a[i+2] += c[i+2] * d[i+2];
+                    b[i+2] += c[i+2] * c[i+2];
+                }
+                if (e[i+3] >= t) {
+                    a[i+3] += c[i+3] * d[i+3];
+                    b[i+3] += c[i+3] * c[i+3];
+                }
+                if (e[i+4] >= t) {
+                    a[i+4] += c[i+4] * d[i+4];
+                    b[i+4] += c[i+4] * c[i+4];
+                }
+                if (e[i+5] >= t) {
+                    a[i+5] += c[i+5] * d[i+5];
+                    b[i+5] += c[i+5] * c[i+5];
+                }
+                if (e[i+6] >= t) {
+                    a[i+6] += c[i+6] * d[i+6];
+                    b[i+6] += c[i+6] * c[i+6];
+                }
+                if (e[i+7] >= t) {
+                    a[i+7] += c[i+7] * d[i+7];
+                    b[i+7] += c[i+7] * c[i+7];
+                }
+            }
+        }
+        for(; i < LEN_1D; i++){
+            if (e[i] >= t) {
+                a[i] += c[i] * d[i];
+                b[i] += c[i] * c[i];
+            }
+        }
+        dummy(a, b, c, d, e, aa, bb, cc, 0.);
+    }
+
+    gettimeofday(&func_args->t2, NULL);
 }
 void s273_avx(struct args_t * func_args)
 {
@@ -2194,6 +2390,430 @@ real_t s316_avx(struct args_t * func_args)
     printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return x;
 }
+real_t s318_avx(struct args_t * func_args)
+{
+
+//    reductions
+//    isamax, max absolute value, increments not equal to 1
+
+    int inc = *(int*)func_args->arg_info;
+    gettimeofday(&func_args->t1, NULL);
+
+    int k, index;
+    real_t max, chksum;
+    int vf = 8;
+    for (int nl = 0; nl < iterations/2; nl++) {
+        k = 0;
+        index = 0;
+        max = ABS(a[0]);
+        k += inc;
+        int upper_bound = LEN_1D / vf * vf;
+        int i = 1;
+        for(; i < upper_bound; i+=vf){
+            //printf("k:%d ", k);
+            if(ABS(a[k]) <= max && ABS(a[k+inc]) <= max && ABS(a[k+(inc * 2)]) <= max && ABS(a[k+(inc * 3)]) <= max
+            && ABS(a[k+(inc * 4)]) <= max && ABS(a[k+(inc * 5)]) <= max
+            && ABS(a[k+(inc * 6)]) <= max && ABS(a[k+(inc * 7)]) <= max){
+                k = k + (inc * 8);
+            }
+            else if(!(ABS(a[k]) <= max) && !(ABS(a[k+(inc)]) <= max) && !(ABS(a[k+(inc * 2)]) <= max) && !(ABS(a[k+(inc * 3)]) <= max)
+            && !(ABS(a[k+(inc * 4)]) <= max) && !(ABS(a[k+(inc * 5)]) <= max)
+            && !(ABS(a[k+(inc * 6)]) <= max) && !(ABS(a[k+(inc * 7)]) <= max)){
+                if((ABS(a[k]) >= ABS(a[k+(inc)])) && (ABS(a[k]) >= ABS(a[k+(inc*2)])) && (ABS(a[k]) >= ABS(a[k+(inc*3)]))
+                && (ABS(a[k]) >= ABS(a[k+(inc*4)])) && (ABS(a[k]) >= ABS(a[k+(inc*5)])) && (ABS(a[k]) >= ABS(a[k+(inc*6)])) && (ABS(a[k]) >= ABS(a[k+(inc*7)]))){
+                    index = i;
+                    max = ABS(a[k]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc)]) >= ABS(a[k])) && (ABS(a[k+(inc)]) >= ABS(a[k+(inc*2)])) && (ABS(a[k+(inc)]) >= ABS(a[k+(inc*3)]))
+                && (ABS(a[k+(inc)]) >= ABS(a[k+(inc*4)])) && (ABS(a[k+(inc)]) >= ABS(a[k+(inc*5)])) && (ABS(a[k+(inc)]) >= ABS(a[k+(inc*6)])) && (ABS(a[k+(inc)]) >= ABS(a[k+(inc*7)]))){
+                    index = i + 1;
+                    max = ABS(a[k+(inc)]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc*2)]) >= ABS(a[k])) && (ABS(a[k+(inc*2)]) >= ABS(a[k+(inc)])) && (ABS(a[k+(inc*2)]) >= ABS(a[k+(inc*3)]))
+                && (ABS(a[k+(inc*2)]) >= ABS(a[k+(inc*4)])) && (ABS(a[k+(inc*2)]) >= ABS(a[k+(inc*5)])) && (ABS(a[k+(inc*2)]) >= ABS(a[k+(inc*6)])) && (ABS(a[k+(inc*2)]) >= ABS(a[k+(inc*7)]))){
+                    index = i + 2;
+                    max = ABS(a[k+(inc*2)]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc*3)]) >= ABS(a[k])) && (ABS(a[k+(inc*3)]) >= ABS(a[k+(inc)])) && (ABS(a[k+(inc*3)]) >= ABS(a[k+(inc*2)]))
+                && (ABS(a[k+(inc*3)]) >= ABS(a[k+(inc*4)])) && (ABS(a[k+(inc*3)]) >= ABS(a[k+(inc*5)])) && (ABS(a[k+(inc*3)]) >= ABS(a[k+(inc*6)])) && (ABS(a[k+(inc*3)]) >= ABS(a[k+(inc*7)]))){
+                    index = i + 3;
+                    max = ABS(a[k + (inc * 3)]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc*4)]) >= ABS(a[k])) && (ABS(a[k+(inc*4)]) >= ABS(a[k+(inc)])) && (ABS(a[k+(inc*4)]) >= ABS(a[k+(inc*2)]))
+                && (ABS(a[k+(inc*4)]) >= ABS(a[k+(inc*3)])) && (ABS(a[k+(inc*4)]) >= ABS(a[k+(inc*5)])) && (ABS(a[k+(inc*4)]) >= ABS(a[k+(inc*6)])) && (ABS(a[k+(inc*4)]) >= ABS(a[k+(inc*7)]))){
+                    index = i + 4;
+                    max = ABS(a[k+(inc*4)]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc*5)]) >= ABS(a[k])) && (ABS(a[k+(inc*5)]) >= ABS(a[k+(inc)])) && (ABS(a[k+(inc*5)]) >= ABS(a[k+(inc*2)]))
+                && (ABS(a[k+(inc*5)]) >= ABS(a[k+(inc*3)])) && (ABS(a[k+(inc*5)]) >= ABS(a[k+(inc*4)])) && (ABS(a[k+(inc*5)]) >= ABS(a[k+(inc*6)])) && (ABS(a[k+(inc*5)]) >= ABS(a[k+(inc*7)]))){
+                    index = i + 5;
+                    max = ABS(a[k+(inc*5)]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc*6)]) >= ABS(a[k])) && (ABS(a[k+(inc*6)]) >= ABS(a[k+(inc)])) && (ABS(a[k+(inc*6)]) >= ABS(a[k+(inc*2)]))
+                && (ABS(a[k+(inc*6)]) >= ABS(a[k+(inc*3)])) && (ABS(a[k+(inc*6)]) >= ABS(a[k+(inc*4)])) && (ABS(a[k+(inc*6)]) >= ABS(a[k+(inc*5)])) && (ABS(a[k+(inc*6)]) >= ABS(a[k+(inc*7)]))){
+                    index = i + 6;
+                    max = ABS(a[k+(inc*6)]);
+                    k = k + (inc * 8);
+                }
+                else if((ABS(a[k+(inc*7)]) >= ABS(a[k])) && (ABS(a[k+(inc*7)]) >= ABS(a[k+(inc)])) && (ABS(a[k+(inc*7)]) >= ABS(a[k+(inc*2)]))
+                &&(ABS(a[k+(inc*7)]) >= ABS(a[k+(inc*3)])) && (ABS(a[k+(inc*7)]) >= ABS(a[k+(inc*4)])) && (ABS(a[k+(inc*7)]) >= ABS(a[k+(inc*5)])) && (ABS(a[k+(inc*7)]) >= ABS(a[k+(inc*6)]))){
+                    index = i + 7;
+                    max = ABS(a[k+(inc*7)]);
+                    k = k + (inc * 8);
+                }
+            }
+            else{
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+1;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+2;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+3;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+4;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+5;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+6;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+                if (ABS(a[k]) <= max) {
+                    k += inc;
+                }
+                else{
+                    index = i+7;
+                    max = ABS(a[k]);
+                    k += inc;
+                }
+            }
+        }
+        for(; i < LEN_1D; i++) {
+            if (ABS(a[k]) <= max) {
+                goto L5;
+            }
+            index = i;
+            max = ABS(a[k]);
+            L5:
+            k += inc;
+        }
+        chksum = max + (real_t) index;
+        dummy(a, b, c, d, e, aa, bb, cc, chksum);
+    }
+    gettimeofday(&func_args->t2, NULL);
+    return max + index + 1;
+}
+real_t s3110_avx(struct args_t * func_args)
+{
+
+//    reductions
+//    if to max with index reductio 2 dimensions
+//    similar to S315
+
+    gettimeofday(&func_args->t1, NULL);
+
+    int xindex, yindex;
+    real_t max, chksum;
+    int vf = 8;
+    for (int nl = 0; nl < 100*(iterations/(LEN_2D)); nl++) {
+        max = aa[(0)][0];
+        xindex = 0;
+        yindex = 0;
+        for (int i = 0; i < LEN_2D; i++) {
+            int j = 0;
+            int upper_bound = LEN_2D /vf * vf;
+            for(; j < upper_bound; j+=vf){
+                __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&(aa[i][j])), _mm256_set1_ps(max), _CMP_GT_OQ);
+                int mask = _mm256_movemask_ps(cmp);
+                if(mask == 255){
+                    if((aa[i][j] > aa[i][j+1]) && (aa[i][j] > aa[i][j+2]) && (aa[i][j] > aa[i][j+3])
+                    && (aa[i][j] > aa[i][j+4]) && (aa[i][j] > aa[i][j+5]) && (aa[i][j] > aa[i][j+6]) && (aa[i][j] > aa[i][j+7])){
+                        max = aa[i][j];
+                        xindex = i;
+                        yindex = j;
+                    }
+                    else if((aa[i][j+1] > aa[i][j]) && (aa[i][j+1] > aa[i][j+2]) && (aa[i][j+1] > aa[i][j+3])
+                    && (aa[i][j+1] > aa[i][j+4]) && (aa[i][j+1] > aa[i][j+5]) && (aa[i][j+1] > aa[i][j+6]) && (aa[i][j+1] > aa[i][j+7])){
+                        max = aa[i][j+1];
+                        xindex = i;
+                        yindex = j+1;
+                    }
+                    else if((aa[i][j+2] > aa[i][j]) && (aa[i][j+2] > aa[i][j+1]) && (aa[i][j+2] > aa[i][j+3])
+                    && (aa[i][j+2] > aa[i][j+4]) && (aa[i][j+2] > aa[i][j+5]) && (aa[i][j+2] > aa[i][j+6]) && (aa[i][j+2] > aa[i][j+7])){
+                        max = aa[i][j+2];
+                        xindex = i;
+                        yindex = j+2;
+                    }
+                    else if((aa[i][j+3] > aa[i][j]) && (aa[i][j+3] > aa[i][j+1]) && (aa[i][j+3] > aa[i][j+2])
+                    &&  (aa[i][j+3] > aa[i][j+4]) && (aa[i][j+3] > aa[i][j+5]) && (aa[i][j+3] > aa[i][j+6]) && (aa[i][j+3] > aa[i][j+7])){
+                        max = aa[i][j+3];
+                        xindex = i;
+                        yindex = j + 3;
+                    }
+                    else if((aa[i][j+4] > aa[i][j]) && (aa[i][j+4] > aa[i][j+1]) && (aa[i][j+4] > aa[i][j+2])
+                    && (aa[i][j+4] > aa[i][j+3]) && (aa[i][j+4] > aa[i][j+5]) && (aa[i][j+4] > aa[i][j+6]) && (aa[i][j+4] > aa[i][j+7])){
+                        max = aa[i][j+4];
+                        xindex = i;
+                        yindex = j+4;
+                    }
+                    else if((aa[i][j+5] > aa[i][j]) && (aa[i][j+5] > aa[i][j+1]) && (aa[i][j+5] > aa[i][j+2])
+                    && (aa[i][j+5] > aa[i][j+3]) && (aa[i][j+5] > aa[i][j+4]) && (aa[i][j+5] > aa[i][j+6]) && (aa[i][j+5] > aa[i][j+7])){
+                        max = aa[i][j+5];
+                        xindex = i;
+                        yindex = j+5;
+                    }
+                    else if((aa[i][j+6] > aa[i][j]) && (aa[i][j+6] > aa[i][j+1]) && (aa[i][j+6] > aa[i][j+2])
+                    && (aa[i][j+6] > aa[i][j+3]) && (aa[i][j+6] > aa[i][j+4]) && (aa[i][j+6] > aa[i][j+5]) && (aa[i][j+6] > aa[i][j+7])){
+                        max = aa[i][j+6];
+                        xindex = i;
+                        yindex = j+6;
+                    }
+                    else if((aa[i][j+7] > aa[i][j]) && (aa[i][j+7] > aa[i][j+1]) && (aa[i][j+7] > aa[i][j+2])
+                    && (aa[i][j+7] > aa[i][j+3]) && (aa[i][j+7] > aa[i][j+4]) && (aa[i][j+7] > aa[i][j+5]) && (aa[i][j+7] > aa[i][j+6])){
+                        max = aa[i][j+7];
+                        xindex = i;
+                        yindex = j+7;
+                    }
+                }
+                else if(mask == 0){
+
+                }
+                else{
+                    if (aa[i][j] > max) {
+                        max = aa[i][j];
+                        xindex = i;
+                        yindex = j;
+                    }
+                    if (aa[i][j+1] > max) {
+                        max = aa[i][j+1];
+                        xindex = i;
+                        yindex = j+1;
+                    }
+                    if (aa[i][j+2] > max) {
+                        max = aa[i][j+2];
+                        xindex = i;
+                        yindex = j+2;
+                    }
+                    if (aa[i][j+3] > max) {
+                        max = aa[i][j+3];
+                        xindex = i;
+                        yindex = j+3;
+                    }
+                    if (aa[i][j+4] > max) {
+                        max = aa[i][j+4];
+                        xindex = i;
+                        yindex = j+4;
+                    }
+                    if (aa[i][j+5] > max) {
+                        max = aa[i][j+5];
+                        xindex = i;
+                        yindex = j+5;
+                    }
+                    if (aa[i][j+6] > max) {
+                        max = aa[i][j+6];
+                        xindex = i;
+                        yindex = j+6;
+                    }
+                    if (aa[i][j+7] > max) {
+                        max = aa[i][j+7];
+                        xindex = i;
+                        yindex = j+7;
+                    }
+                }
+            }
+            for (; j < LEN_2D; j++) {
+                if (aa[i][j] > max) {
+                    max = aa[i][j];
+                    xindex = i;
+                    yindex = j;
+                }
+            }
+        }
+        chksum = max + (real_t) xindex + (real_t) yindex;
+        dummy(a, b, c, d, e, aa, bb, cc, chksum);
+    }
+
+    gettimeofday(&func_args->t2, NULL);
+    return max + xindex+1 + yindex+1;
+}
+real_t s13110_avx(struct args_t * func_args)
+{
+
+//    reductions
+//    if to max with index reductio 2 dimensions
+
+    gettimeofday(&func_args->t1, NULL);
+    int vf = 8;
+    int xindex, yindex;
+    real_t max, chksum;
+    for (int nl = 0; nl < 100*(iterations/(LEN_2D)); nl++) {
+        max = aa[(0)][0];
+        xindex = 0;
+        yindex = 0;
+        for (int i = 0; i < LEN_2D; i++) {
+            int j = 0;
+            int upper_bound = LEN_2D /vf * vf;
+            for(; j < upper_bound; j+=vf){
+                __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&(aa[i][j])), _mm256_set1_ps(max), _CMP_GT_OQ);
+                int mask = _mm256_movemask_ps(cmp);
+                if(mask == 255){
+                    if((aa[i][j] > aa[i][j+1]) && (aa[i][j] > aa[i][j+2]) && (aa[i][j] > aa[i][j+3])
+                       && (aa[i][j] > aa[i][j+4]) && (aa[i][j] > aa[i][j+5]) && (aa[i][j] > aa[i][j+6]) && (aa[i][j] > aa[i][j+7])){
+                        max = aa[i][j];
+                        xindex = i;
+                        yindex = j;
+                    }
+                    else if((aa[i][j+1] > aa[i][j]) && (aa[i][j+1] > aa[i][j+2]) && (aa[i][j+1] > aa[i][j+3])
+                            && (aa[i][j+1] > aa[i][j+4]) && (aa[i][j+1] > aa[i][j+5]) && (aa[i][j+1] > aa[i][j+6]) && (aa[i][j+1] > aa[i][j+7])){
+                        max = aa[i][j+1];
+                        xindex = i;
+                        yindex = j+1;
+                    }
+                    else if((aa[i][j+2] > aa[i][j]) && (aa[i][j+2] > aa[i][j+1]) && (aa[i][j+2] > aa[i][j+3])
+                            && (aa[i][j+2] > aa[i][j+4]) && (aa[i][j+2] > aa[i][j+5]) && (aa[i][j+2] > aa[i][j+6]) && (aa[i][j+2] > aa[i][j+7])){
+                        max = aa[i][j+2];
+                        xindex = i;
+                        yindex = j+2;
+                    }
+                    else if((aa[i][j+3] > aa[i][j]) && (aa[i][j+3] > aa[i][j+1]) && (aa[i][j+3] > aa[i][j+2])
+                            &&  (aa[i][j+3] > aa[i][j+4]) && (aa[i][j+3] > aa[i][j+5]) && (aa[i][j+3] > aa[i][j+6]) && (aa[i][j+3] > aa[i][j+7])){
+                        max = aa[i][j+3];
+                        xindex = i;
+                        yindex = j + 3;
+                    }
+                    else if((aa[i][j+4] > aa[i][j]) && (aa[i][j+4] > aa[i][j+1]) && (aa[i][j+4] > aa[i][j+2])
+                            && (aa[i][j+4] > aa[i][j+3]) && (aa[i][j+4] > aa[i][j+5]) && (aa[i][j+4] > aa[i][j+6]) && (aa[i][j+4] > aa[i][j+7])){
+                        max = aa[i][j+4];
+                        xindex = i;
+                        yindex = j+4;
+                    }
+                    else if((aa[i][j+5] > aa[i][j]) && (aa[i][j+5] > aa[i][j+1]) && (aa[i][j+5] > aa[i][j+2])
+                            && (aa[i][j+5] > aa[i][j+3]) && (aa[i][j+5] > aa[i][j+4]) && (aa[i][j+5] > aa[i][j+6]) && (aa[i][j+5] > aa[i][j+7])){
+                        max = aa[i][j+5];
+                        xindex = i;
+                        yindex = j+5;
+                    }
+                    else if((aa[i][j+6] > aa[i][j]) && (aa[i][j+6] > aa[i][j+1]) && (aa[i][j+6] > aa[i][j+2])
+                            && (aa[i][j+6] > aa[i][j+3]) && (aa[i][j+6] > aa[i][j+4]) && (aa[i][j+6] > aa[i][j+5]) && (aa[i][j+6] > aa[i][j+7])){
+                        max = aa[i][j+6];
+                        xindex = i;
+                        yindex = j+6;
+                    }
+                    else if((aa[i][j+7] > aa[i][j]) && (aa[i][j+7] > aa[i][j+1]) && (aa[i][j+7] > aa[i][j+2])
+                            && (aa[i][j+7] > aa[i][j+3]) && (aa[i][j+7] > aa[i][j+4]) && (aa[i][j+7] > aa[i][j+5]) && (aa[i][j+7] > aa[i][j+6])){
+                        max = aa[i][j+7];
+                        xindex = i;
+                        yindex = j+7;
+                    }
+                }
+                else if(mask == 0){
+
+                }
+                else{
+                    if (aa[i][j] > max) {
+                        max = aa[i][j];
+                        xindex = i;
+                        yindex = j;
+                    }
+                    if (aa[i][j+1] > max) {
+                        max = aa[i][j+1];
+                        xindex = i;
+                        yindex = j+1;
+                    }
+                    if (aa[i][j+2] > max) {
+                        max = aa[i][j+2];
+                        xindex = i;
+                        yindex = j+2;
+                    }
+                    if (aa[i][j+3] > max) {
+                        max = aa[i][j+3];
+                        xindex = i;
+                        yindex = j+3;
+                    }
+                    if (aa[i][j+4] > max) {
+                        max = aa[i][j+4];
+                        xindex = i;
+                        yindex = j+4;
+                    }
+                    if (aa[i][j+5] > max) {
+                        max = aa[i][j+5];
+                        xindex = i;
+                        yindex = j+5;
+                    }
+                    if (aa[i][j+6] > max) {
+                        max = aa[i][j+6];
+                        xindex = i;
+                        yindex = j+6;
+                    }
+                    if (aa[i][j+7] > max) {
+                        max = aa[i][j+7];
+                        xindex = i;
+                        yindex = j+7;
+                    }
+                }
+            }
+            for (; j < LEN_2D; j++) {
+                if (aa[i][j] > max) {
+                    max = aa[i][j];
+                    xindex = i;
+                    yindex = j;
+                }
+            }
+        }
+        chksum = max + (real_t) xindex + (real_t) yindex;
+        dummy(a, b, c, d, e, aa, bb, cc, chksum);
+    }
+
+    gettimeofday(&func_args->t2, NULL);
+    return max + xindex+1 + yindex+1;
+}
 real_t s3111_avx(struct args_t * func_args)
 {
 
@@ -2874,6 +3494,13 @@ real_t s271(struct args_t * func_args)
     s271_avx(func_args);
     return calc_checksum(__func__);
 }
+real_t s272(struct args_t * func_args)
+{
+    initialise_arrays(__func__);
+    //s272_baseline(func_args);
+    s272_avx(func_args);
+    return calc_checksum(__func__);
+}
 real_t s273(struct args_t * func_args)
 {
 
@@ -2959,6 +3586,37 @@ real_t s316(struct args_t * func_args)
 
     initialise_arrays(__func__);
     return s316_avx(func_args);
+}
+real_t s318(struct args_t * func_args)
+{
+
+//    reductions
+//    isamax, max absolute value, increments not equal to 1
+
+    int inc = *(int*)func_args->arg_info;
+
+    initialise_arrays(__func__);
+    //return s318_baseline(func_args);
+    return s318_avx(func_args);
+}
+real_t s3110(struct args_t * func_args)
+{
+
+//    reductions
+//    if to max with index reductio 2 dimensions
+//    similar to S315
+
+    initialise_arrays(__func__);
+    return s3110_avx(func_args);
+}
+real_t s13110(struct args_t * func_args)
+{
+
+//    reductions
+//    if to max with index reductio 2 dimensions
+
+    initialise_arrays(__func__);
+    return s13110_avx(func_args);
 }
 real_t s3111(struct args_t * func_args)
 {
@@ -3075,6 +3733,9 @@ int main(int argc, char ** argv){
     if(strcmp(name, "s271") == 0){
         time_function(&s271, NULL);
     }
+    if(strcmp(name, "s272") == 0){
+        time_function(&s272, &s1);
+    }
     if(strcmp(name, "s273") == 0){
         time_function(&s273, NULL);
     }
@@ -3101,6 +3762,15 @@ int main(int argc, char ** argv){
     }
     if(strcmp(name, "s316") == 0){
         time_function(&s316, NULL);
+    }
+    if(strcmp(name, "s318") == 0){
+        time_function(&s318, &n1);
+    }
+    if(strcmp(name, "s3110") == 0){
+        time_function(&s3110, NULL);
+    }
+    if(strcmp(name, "s13110") == 0){
+        time_function(&s13110, NULL);
     }
     if(strcmp(name, "s3111") == 0){
         time_function(&s3111, NULL);
