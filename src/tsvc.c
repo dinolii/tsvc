@@ -783,10 +783,10 @@ void s123_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s124_avx(struct args_t * func_args)
 {
@@ -901,10 +901,10 @@ void s124_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s161_avx(struct args_t * func_args)
 {
@@ -1002,10 +1002,10 @@ void s161_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s1161_avx(struct args_t * func_args){
     gettimeofday(&func_args->t1, NULL);
@@ -1097,10 +1097,10 @@ void s1161_avx(struct args_t * func_args){
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s253_avx(struct args_t * func_args)
 {
@@ -1191,10 +1191,10 @@ void s253_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s258_avx(struct args_t * func_args)
 {
@@ -1291,10 +1291,10 @@ void s258_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s271_avx(struct args_t * func_args)
 {
@@ -1358,10 +1358,10 @@ void s271_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s272_avx(struct args_t * func_args)
 {
@@ -1504,10 +1504,10 @@ void s273_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s274_avx(struct args_t * func_args)
 {
@@ -1603,10 +1603,10 @@ void s274_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s277_avx(struct args_t * func_args)
 {
@@ -1802,10 +1802,10 @@ void s277_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 
 }
 void s278_avx(struct args_t * func_args)
@@ -1919,10 +1919,10 @@ void s278_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s2711_avx(struct args_t * func_args)
 {
@@ -1985,10 +1985,10 @@ void s2711_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s2712_avx(struct args_t * func_args)
 {
@@ -2054,10 +2054,10 @@ void s2712_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 real_t s314_avx(struct args_t * func_args)
 {
@@ -2155,10 +2155,10 @@ real_t s314_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, x);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return x;
 }
 real_t s315_avx(struct args_t * func_args)
@@ -2280,10 +2280,10 @@ real_t s315_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, chksum);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return index + x + 1;
 }
 real_t s316_avx(struct args_t * func_args)
@@ -2382,10 +2382,10 @@ real_t s316_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, x);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return x;
 }
 real_t s318_avx(struct args_t * func_args)
@@ -2408,7 +2408,7 @@ real_t s318_avx(struct args_t * func_args)
         int upper_bound = LEN_1D / vf * vf;
         int i = 1;
         for(; i < upper_bound; i+=vf){
-            //printf("k:%d ", k);
+            ////printf("k:%d ", k);
             if(ABS(a[k]) <= max && ABS(a[k+inc]) <= max && ABS(a[k+(inc * 2)]) <= max && ABS(a[k+(inc * 3)]) <= max
             && ABS(a[k+(inc * 4)]) <= max && ABS(a[k+(inc * 5)]) <= max
             && ABS(a[k+(inc * 6)]) <= max && ABS(a[k+(inc * 7)]) <= max){
@@ -2883,10 +2883,10 @@ real_t s3111_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, sum);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return sum;
 }
 real_t s3113_avx(struct args_t * func_args)
@@ -2992,10 +2992,10 @@ real_t s3113_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, max);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
     return max;
 }
 void s341_avx(struct args_t * func_args)
@@ -3075,10 +3075,10 @@ void s341_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s342_avx(struct args_t * func_args)
 {
@@ -3157,10 +3157,10 @@ void s342_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s343_avx(struct args_t * func_args)
 {
@@ -3243,10 +3243,10 @@ void s343_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void s443_avx(struct args_t * func_args)
 {
@@ -3346,10 +3346,10 @@ void s443_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 void vif_avx(struct args_t * func_args)
 {
@@ -3413,10 +3413,10 @@ void vif_avx(struct args_t * func_args)
         dummy(a, b, c, d, e, aa, bb, cc, 0.);
     }
     gettimeofday(&func_args->t2, NULL);
-    printf("\nTotal count:%d", total_count);
-    printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
-    printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
-    printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
+    //printf("\nTotal count:%d", total_count);
+    //printf("\nTrue count:%d\tPortion:%f", true_count, (double)true_count/total_count);
+    //printf("\nFalse count:%d\tPortion:%f", false_count, (double)false_count/total_count);
+    //printf("\nDivergent count:%d\tPortion:%f\n\t", divergent_count, (double)divergent_count/total_count);
 }
 real_t s123(struct args_t * func_args)
 {
