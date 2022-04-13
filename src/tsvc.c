@@ -794,7 +794,6 @@ void s124_avx(struct args_t * func_args)
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&b[i]), _mm256_setzero_ps(), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
-                true_count += 1;
                 j++;
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 d_ = _mm256_load_ps(&d[i]);
@@ -1431,7 +1430,6 @@ void s274_avx(struct args_t * func_args)
                 _mm256_store_ps(&a[i], mul);
             }
             else{
-                divergent_count += 1;
                 if(a[i] > (real_t)0.){
                     b[i] = a[i] + b[i];
                 }
@@ -1853,7 +1851,6 @@ void s2712_avx(struct args_t * func_args)
             __m256 cmp = _mm256_cmp_ps(_mm256_load_ps(&a[i]), _mm256_load_ps(&b[i]), _CMP_GT_OQ);
             int mask = _mm256_movemask_ps(cmp);
             if(mask==255){
-                true_count += 1;
                 __m256 a_ = _mm256_load_ps(&a[i]);
                 __m256 b_ = _mm256_load_ps(&b[i]);
                 __m256 c_ = _mm256_load_ps(&c[i]);
