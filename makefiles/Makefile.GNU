@@ -1,8 +1,8 @@
 CC=gcc -std=c99
 CXX=g++
 FC=gfortran
-flags = -mavx2 -O3 -fstrict-aliasing -fivopts
-vecflags = -ftree-vectorize 
+flags = -mavx512f -O3 -fstrict-aliasing -fivopts
+vecflags = -ftree-vectorize -ftree-vectorizer-verbose=5 -fopt-info-vec=gcc.vect -fopt-info-vec-missed -fno-inline
 novecflags = -fno-tree-vectorize
 omp_flags=-fopenmp
 

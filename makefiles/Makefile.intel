@@ -2,7 +2,7 @@
 CC=icc -restrict -std=c99
 CXX=icpc -restrict
 FC=ifort -align array64byte
-flags = -mavx2 -O3 -ip
+flags = -mavx512f -O3 -ip
 vecflags = -vec
 novecflags = -no-vec
 omp_flags+=-fopenmp
